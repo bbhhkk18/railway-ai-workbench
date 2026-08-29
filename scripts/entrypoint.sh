@@ -25,6 +25,10 @@ sed "s/__UUID__/$VLESS_UUID/" /opt/stack/xray-template.json > /usr/local/etc/xra
 sed -i "s/^worker_processes .*/worker_processes 2;/" /etc/nginx/nginx.conf
 cp /opt/stack/nginx-dsh.conf /etc/nginx/conf.d/dsh.conf
 
+# supervisor 本地控制 socket 加随机认证, 消除无认证 CRIT 告警
+SUP_PASS=$(openssl rand -hex 16)
+sed -i "/^\[unix_http_server\]/a username=supervisor\npassword=$SUP_PASS" /etc/supervisor/supervisord.conf
+
 mkdir -p /run/sshd /root/workspace
 
 exec /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
