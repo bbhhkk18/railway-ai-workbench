@@ -85,6 +85,8 @@ mutation {
 
 > 服务创建会立即开始首次构建，此时变量还没设，首次部署 CRASHED 属预期，按 2.6 处理。
 
+> ⚠️ 经 API 创建的服务**不会自动创建 deployment trigger**（面板建服务才有）：首次部署正常，但之后 push 到仓库不会触发自动构建。需要 push 自动部署时，按故障表「push 后没有自动构建」补建触发器。
+
 **2.4 设置环境变量 ×3**（值来自 Step 0，一个都不能少）
 
 ```graphql
@@ -156,7 +158,7 @@ curl -s -o /dev/null -w "%{http_code}" -u "admin:<WEB_PASSWORD>" https://<域名
 | 日志中无 `[tunnel]` 行 | 镜像较旧 → SSH 方式：先在面板生成 TCP Proxy(22)，`ssh root@<地址> -p <端口> 'cat /root/.tunnel_domain'` |
 | 401 验证失败 | htpasswd 渲染失败，查部署日志 entrypoint 输出 |
 | 用户改了仓库代码 | 无需重新 fork，Railway 构建部署源的 main 分支 |
-| push 后没有自动构建 | webhook 未送达 → 检查 GitHub App 授权与服务 Auto Deploy 开关；手动触发 `serviceInstanceDeploy(latestCommit: true)`（注意 `serviceInstanceRedeploy` 不拉新代码） |
+| push 后没有自动构建 | **API 建的服务（serviceCreate）没有 deployment trigger，push 永远静默无效**（不是 webhook 抖动）：API 补建 `deploymentTriggerCreate(input:{projectId, serviceId, environmentId, provider:"github", repository:"<owner>/<repo>", branch:"main"})`（建后 autoDeploy 自动置为 enabled），或面板服务 Settings → Source 打开 Auto Deploy；应急本次构建 `serviceInstanceDeploy(latestCommit: true)`（注意 `serviceInstanceRedeploy` 不拉新代码） |
 | 迁移 region 不生效 | 改 `multiRegionConfig`：键含连字符，必须用 **JSON 类型变量**传参（variables 传 `mrc: {"asia-southeast1-eqsg3a": {"numReplicas": 1}}`，新加坡；`asia-southeast1` 为同城弃用别名，旧短代码 `sin` 已失效），只改 `region` 字段会被覆盖 |
 
 ## 安全守则

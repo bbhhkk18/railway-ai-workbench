@@ -157,7 +157,7 @@ rules:
 
 - 建议给服务挂 **Volume** 到 `/root/workspace`（filebrowser 工作区），重部署数据不丢
 - 进程崩溃 supervisor 自动重启；容器重启自动拉起全部服务
-- 修改任何配置 = 改仓库文件 → push → Railway 自动重建（2-8 分钟）。⚠️ push 后迟迟没有新部署 = webhook 未送达：检查 GitHub → Settings → Applications → Railway → Configure 的授权，或服务 Settings → Source 的 Auto Deploy 开关；应急可在面板手动 Deploy
+- 修改任何配置 = 改仓库文件 → push → Railway 自动重建（2-8 分钟）。⚠️ **经 API（serviceCreate）创建的服务没有 deployment trigger，push 不会触发构建**（面板点出来的服务才会自动创建）：去服务 Settings → Source 打开 Auto Deploy，或用 API 补建触发器；补好后 push 仍无部署再查 GitHub App 授权（webhook 未送达）。应急可在面板手动 Deploy 或 `serviceInstanceDeploy(latestCommit: true)`
 - 面板/API 的两种"重新部署"有区别：**Redeploy（`serviceInstanceRedeploy`）= 原镜像重跑**，不拉新代码，只适合让环境变量等运行时配置生效；改了代码必须用 **`serviceInstanceDeploy(latestCommit: true)`** 重新构建
 - 迁移地区要改服务的 **multiRegionConfig**（面板 Scale → Region 等价于改它）；只改 `region` 字段会被 multiRegionConfig 覆盖，改了等于没改。经 API 修改时键含连字符，必须用 JSON 类型变量传参（如 variables 传 `mrc: {"asia-southeast1-eqsg3a": {"numReplicas": 1}}`，新加坡；`asia-southeast1` 为同城弃用别名，旧短代码 `sin` 已失效）
 - 每次重部署后隧道域名会变：SSH 执行 `cat /root/.tunnel_domain`，或看 Railway 部署日志中 `[tunnel]` 行（UUID 不变，只改 Clash 的 server 字段）。多次重部署后日志里会同时有多条 `[tunnel]` 行，只有当前容器那条有效——死域名 curl 返回 Cloudflare 530，活域名打到 xray 返回 400
