@@ -40,13 +40,21 @@ SSH_PASSWORD=$(openssl rand -base64 12 | tr '+/' 'Aa')
 
 记住三个值，最后随凭据卡输出给用户。
 
-## Step 1 Fork 仓库
+## Step 1 确定部署源仓库
+
+部署源是 `railway-ai-workbench` 仓库，按执行者身份二选一：
+
+- **用户已拥有本仓库**（作者自部署，如 bbhhkk18）→ 无需 fork，部署源 = `<用户名>/railway-ai-workbench`
+- **第三方使用者** → 先 Fork 本仓库，部署源 = fork 返回的 `full_name`：
 
 ```
-POST https://api.github.com/repos/bbhhkk18/railwaysshtemplate/forks
+POST https://api.github.com/repos/bbhhkk18/railway-ai-workbench/forks
 ```
 
-返回 JSON 中取 `full_name`（形如 `<用户名>/railwaysshtemplate`）。fork 默认分支为 main。
+返回 JSON 中取 `full_name`（形如 `<用户名>/railway-ai-workbench`）。fork 默认分支为 main。
+
+> ⚠️ GitHub 不允许 fork 到同一账号：执行者与 bbhhkk18 是同一账号时走第一种，不要调 fork 接口。
+> 绑定前用 `GET /repos/<部署源>` 验证仓库存在，404 则停下与用户确认，不要猜测或替换仓库名。
 
 ## Step 2 Railway 部署（按序执行，ID 从各步返回中提取）
 
@@ -68,7 +76,7 @@ query { project(id: "<projectId>") { environments { edges { node { id name } } }
 mutation {
   serviceCreate(input: {
     projectId: "<projectId>", name: "workbench",
-    source: { repo: "<用户名>/railwaysshtemplate" }
+    source: { repo: "<用户名>/railway-ai-workbench" }
   }) { ... }
 }
 ```
@@ -141,7 +149,7 @@ curl -s -o /dev/null -w "%{http_code}" -u "admin:<WEB_PASSWORD>" https://<域名
 | 首次部署 CRASHED | 变量未生效 → 确认 2.4 三个变量都成功后执行 2.6 |
 | 日志中无 `[tunnel]` 行 | 镜像较旧 → SSH 方式：先在面板生成 TCP Proxy(22)，`ssh root@<地址> -p <端口> 'cat /root/.tunnel_domain'` |
 | 401 验证失败 | htpasswd 渲染失败，查部署日志 entrypoint 输出 |
-| 用户改了仓库代码 | 无需重新 fork，Railway 构建 fork 的 main 分支 |
+| 用户改了仓库代码 | 无需重新 fork，Railway 构建部署源的 main 分支 |
 
 ## 安全守则
 
