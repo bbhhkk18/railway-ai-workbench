@@ -5,12 +5,21 @@
 > 你的任务：纯 API 完成全自动部署，最后把**所有凭据直接输出在对话里**给用户。
 > 严禁把任何真实密码/UUID 写进 git 仓库或容器文件。
 
-## 前提（唯一需要人工的一步）
+## ⚠️ 前提检查点（开始任何 Step 之前，必须停下与用户确认）
 
-Railway 服务绑定 GitHub 仓库依赖 **Railway GitHub App** 授权。
-- 判断：执行 Step 2.2 时若报"找不到仓库/无权限"，即为未授权
-- 引导用户浏览器完成：Railway → New Project → Deploy from GitHub repo → Install GitHub App（建议选 All repositories），完成后你重试即可
-- 用户此前部署过 Railway 项目则大概率已授权，直接往下走
+Railway 服务绑定 GitHub 仓库依赖 **Railway GitHub App** 授权，token 无法替代这一步。
+
+**先在对话中问用户，并停下等待回答，不要自行跳过：**
+
+> "你的 Railway 账号之前授权过 Railway 的 GitHub App 吗？授权范围包含本仓库吗？"
+
+- 用户确认"已授权且覆盖本仓库" → 继续 Step 0/1
+- 用户回答"没有 / 不确定" → 给出以下指引，然后**停下等用户回复"好了"**再继续：
+  1. 打开 GitHub → Settings → Applications → Installed GitHub Apps → **Railway** → Configure
+  2. 勾选目标仓库（或选 All repositories）→ Save
+  3. （新仓库首次授权也可走 Railway 面板 New Project → Deploy from GitHub repo 流程）
+- 即使确认过，Step 2.3 若仍报"找不到仓库/无权限"，立即回到本检查点与用户沟通，**不要反复重试**
+- 同理，本文件中任何需要用户在浏览器操作或提供信息的步骤，都必须停下等用户，不要猜测或代替用户决定
 
 ## GraphQL 端点（Railway 全部操作都用它）
 
