@@ -58,10 +58,12 @@ POST https://api.github.com/repos/bbhhkk18/railway-ai-workbench/forks
 
 ## Step 2 Railway 部署（按序执行，ID 从各步返回中提取）
 
-**2.1 建项目** → 取 `projectId`
+**2.1 建项目** → 取 `projectId`（`workspaceId` 必填，先查账号工作空间）
 
 ```graphql
-mutation { projectCreate(input: { name: "ai-workbench" }) { ... } }
+query { me { workspaces { id name } } }
+# 取个人工作空间 id（通常只有一个），再：
+mutation { projectCreate(input: { name: "ai-workbench", workspaceId: "<workspaceId>" }) { id name } }
 ```
 
 **2.2 查环境** → 取 `environmentId`（production）
