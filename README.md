@@ -49,7 +49,7 @@ Agent 会自动完成：生成强密码和 UUID → fork/绑定仓库 → 建项
 ## 三、方式 B：手动在仪表盘部署（5 步）
 
 1. **Fork 本仓库**（右上角 Fork 到你的 GitHub 账号）
-2. **Railway 建项目**：登录 [Railway](https://railway.app) → New Project → Deploy from GitHub repo → 选择你 fork 的仓库
+2. **Railway 建项目**：登录 [Railway](https://railway.app) → New Project → Deploy from GitHub repo → 选择你 fork 的仓库；建议顺手在服务 **Scale → Region** 选 `us-west2`（洛杉矶，与本仓库剧本默认一致），不设则用平台默认区域
 3. **设置环境变量**：服务 → Variables，设置下面 3 个变量（**值必须自己生成**）
 4. **生成域名**：服务 → Settings → Networking → Generate Domain，端口填 **3082**
 5. **访问**：浏览器打开域名，用户 `admin` + 你设的 `WEB_PASSWORD` 登录

@@ -96,6 +96,18 @@ mutation { variableUpsert(input: {
 }) }
 ```
 
+**2.4b 设置部署区域**（本剧本默认美西 `us-west2` 洛杉矶；跳过则落到 Railway 平台默认区域）
+
+```graphql
+mutation($sid:String!,$eid:String!,$mrc:JSON){
+  serviceInstanceUpdate(serviceId:$sid, environmentId:$eid,
+    input:{ region:"us-west2", multiRegionConfig:$mrc })
+}
+# variables: { "sid": "<serviceId>", "eid": "<environmentId>", "mrc": {"us-west2": {"numReplicas": 1}} }
+```
+
+> ⚠️ `multiRegionConfig` 的键含连字符，必须用 **JSON 类型变量**传参，不能内联进 GraphQL 字面量。想用其他区域换键即可（`query { regions { name } }` 列出全部合法代码，新加坡 = `asia-southeast1-eqsg3a`）；区域在下一次部署生效，继续按 2.5 / 2.6 执行。
+
 **2.5 生成公网域名**（自动命名，绑定 3082 端口）
 
 ```graphql
