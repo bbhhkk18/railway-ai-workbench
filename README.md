@@ -90,19 +90,49 @@ Agent 会自动完成：生成强密码和 UUID → fork/绑定仓库 → 建项
 代理节点信息：协议 `vless + ws`，UUID = 你设的 `VLESS_UUID`，
 服务器地址 = 容器内 `/root/.tunnel_domain`（或 Railway 部署日志中 `[tunnel]` 行），端口 443（TLS 由 Cloudflare 终结）。
 
-Clash 客户端配置示例：
+Clash 完整配置（config.yaml，导入即用：国内直连、其余走节点）。
+把 `server` 和 `uuid` 换成部署后凭据卡里的实际值；重部署后隧道域名变了，也只需改 `server` 这一行。
+vless 需要 Meta 内核（mihomo），Clash Verge Rev / Clash Nyanpasu / ClashMetaForAndroid 等客户端均内置。
 
 ```yaml
-- name: my-node
-  type: vless
-  server: <你的 trycloudflare 域名>
-  port: 443
-  uuid: <你设置的 VLESS_UUID>
-  tls: true
-  udp: false
-  network: ws
-  ws-opts:
-    path: /
+mixed-port: 7890
+mode: rule
+log-level: info
+
+dns:
+  enable: true
+  enhanced-mode: fake-ip
+  nameserver:
+    - https://223.5.5.5/dns-query
+    - https://doh.pub/dns-query
+
+proxies:
+  - name: ai-workbench
+    type: vless
+    server: <你的 trycloudflare 域名>
+    port: 443
+    uuid: <你设置的 VLESS_UUID>
+    tls: true
+    udp: false
+    network: ws
+    ws-opts:
+      path: /
+
+proxy-groups:
+  - name: PROXY
+    type: select
+    proxies:
+      - ai-workbench
+      - DIRECT
+
+rules:
+  - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+  - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+  - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+  - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+  - GEOSITE,CN,DIRECT
+  - GEOIP,CN,DIRECT
+  - MATCH,PROXY
 ```
 
 ---

@@ -136,7 +136,7 @@ curl -s -o /dev/null -w "%{http_code}" -u "admin:<WEB_PASSWORD>" https://<域名
 
 1. **网页工作台**：`https://<域名>`，用户名 `admin`，密码 `<WEB_PASSWORD>`
 2. **代理节点**：协议 vless+ws，服务器 `<隧道域名>`，端口 443，UUID `<VLESS_UUID>`，path `/`
-3. **Clash 配置 YAML**（server/uuid 替换为实际值）
+3. **Clash 完整 config.yaml**（国内直连、其余走节点，模板见 README；server/uuid 替换为实际值）
 4. **SSH**（可选调试用）：Railway 面板 → 服务 Settings → Networking → Generate Domain 选 TCP Proxy、端口 22；密码 `<SSH_PASSWORD>`
 5. **维护提示**：重部署后隧道域名会变（重新执行 2.7 获取，UUID 不变）；dsh 的 API Key 在重部署后需在设置页重填；代理勿大流量、勿转手分享（Cloudflare 条款风险自担）
 6. **提醒用户轮换两个 token**
