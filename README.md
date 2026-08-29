@@ -132,6 +132,6 @@ Clash 客户端配置示例：
 
 ## 八、构建细节
 
-- 基于 Ubuntu 22.04，dsh 版本锁定 `0.1.1-rc.2`
+- 基于 Ubuntu 22.04，dsh 版本锁定 `0.1.1-rc.2`，filebrowser `v2.63.23` / Xray `v26.3.27` / cloudflared `2026.8.2` 同样锁定（升级需改 Dockerfile）
 - dsh 客户端 `isLoopbackHostname` 补丁（放行 `.up.railway.app`）在 Docker 构建期固化进镜像
 - `RAILWAY_PUBLIC_DOMAIN` 由 Railway 自动注入，无需手工配置

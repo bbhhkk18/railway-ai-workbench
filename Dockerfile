@@ -18,18 +18,18 @@ RUN NODE_OPTIONS="--max-old-space-size=2048" npm install -g @deepseek-ai/dsh@0.1
 COPY scripts/patch-dsh.sh /usr/local/bin/patch-dsh.sh
 RUN chmod +x /usr/local/bin/patch-dsh.sh && patch-dsh.sh
 
-# filebrowser / xray / cloudflared（按构建架构选择二进制）
+# filebrowser / xray / cloudflared（按构建架构选择二进制，版本锁定保证构建可复现）
 ARG TARGETARCH=amd64
 RUN set -ex; \
     case "$TARGETARCH" in \
       arm64) FB=linux-arm64; XR=Xray-linux-arm64-v8a.zip; CF=cloudflared-linux-arm64 ;; \
       *)     FB=linux-amd64; XR=Xray-linux-64.zip;        CF=cloudflared-linux-amd64 ;; \
     esac; \
-    curl -fsSL -o /tmp/fb.tar.gz "https://github.com/filebrowser/filebrowser/releases/latest/download/${FB}-filebrowser.tar.gz" \
+    curl -fsSL -o /tmp/fb.tar.gz "https://github.com/filebrowser/filebrowser/releases/download/v2.63.23/${FB}-filebrowser.tar.gz" \
     && tar xzf /tmp/fb.tar.gz -C /tmp filebrowser && mv /tmp/filebrowser /usr/local/bin/ \
-    && curl -fsSL -o /tmp/xray.zip "https://github.com/XTLS/Xray-core/releases/latest/download/${XR}" \
+    && curl -fsSL -o /tmp/xray.zip "https://github.com/XTLS/Xray-core/releases/download/v26.3.27/${XR}" \
     && python3 -c "import zipfile; zipfile.ZipFile('/tmp/xray.zip').extract('xray','/usr/local/bin')" \
-    && curl -fsSL -o /usr/local/bin/cloudflared "https://github.com/cloudflare/cloudflared/releases/latest/download/${CF}" \
+    && curl -fsSL -o /usr/local/bin/cloudflared "https://github.com/cloudflare/cloudflared/releases/download/2026.8.2/${CF}" \
     && chmod +x /usr/local/bin/xray /usr/local/bin/cloudflared
 
 # 栈配置
