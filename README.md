@@ -92,7 +92,7 @@ Agent 会自动完成：生成强密码和 UUID → fork/绑定仓库 → 建项
 
 Clash 完整配置（config.yaml，导入即用：国内直连、其余走节点）。
 把 `server` 和 `uuid` 换成部署后凭据卡里的实际值；重部署后隧道域名变了，也只需改 `server` 这一行。
-vless 需要 Meta 内核（mihomo），Clash Verge Rev / Clash Nyanpasu / ClashMetaForAndroid 等客户端均内置。
+vless 需要 Meta 内核（mihomo），FlClash / Clash Verge Rev / Clash Nyanpasu / ClashMetaForAndroid 等客户端均内置。
 
 ```yaml
 mixed-port: 7890
