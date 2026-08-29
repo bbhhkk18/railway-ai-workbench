@@ -103,8 +103,10 @@ mutation { serviceDomainCreate(input: {
 **2.6 触发重部署（让变量生效）并等待完成**
 
 ```graphql
-mutation { serviceInstanceRedeploy(id: "<serviceId>", environmentId: "...") ... }
+mutation { serviceInstanceRedeploy(serviceId: "<serviceId>", environmentId: "...") }
 ```
+
+> ⚠️ `serviceInstanceRedeploy` 是**原镜像重跑**，只让环境变量等运行时配置生效，不会拉取新代码；仓库代码有改动时要用 `serviceInstanceDeploy(serviceId: "...", environmentId: "...", latestCommit: true)`。
 
 轮询部署状态（首次构建约 5-10 分钟）：
 
@@ -150,6 +152,8 @@ curl -s -o /dev/null -w "%{http_code}" -u "admin:<WEB_PASSWORD>" https://<域名
 | 日志中无 `[tunnel]` 行 | 镜像较旧 → SSH 方式：先在面板生成 TCP Proxy(22)，`ssh root@<地址> -p <端口> 'cat /root/.tunnel_domain'` |
 | 401 验证失败 | htpasswd 渲染失败，查部署日志 entrypoint 输出 |
 | 用户改了仓库代码 | 无需重新 fork，Railway 构建部署源的 main 分支 |
+| push 后没有自动构建 | webhook 未送达 → 检查 GitHub App 授权与服务 Auto Deploy 开关；手动触发 `serviceInstanceDeploy(latestCommit: true)`（注意 `serviceInstanceRedeploy` 不拉新代码） |
+| 迁移 region 不生效 | 要改 `multiRegionConfig`（如 `{sin: {numReplicas: 1}}`），只改 `region` 字段会被覆盖 |
 
 ## 安全守则
 

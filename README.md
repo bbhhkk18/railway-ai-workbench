@@ -157,7 +157,9 @@ rules:
 
 - 建议给服务挂 **Volume** 到 `/root/workspace`（filebrowser 工作区），重部署数据不丢
 - 进程崩溃 supervisor 自动重启；容器重启自动拉起全部服务
-- 修改任何配置 = 改仓库文件 → push → Railway 自动重建（2-8 分钟）
+- 修改任何配置 = 改仓库文件 → push → Railway 自动重建（2-8 分钟）。⚠️ push 后迟迟没有新部署 = webhook 未送达：检查 GitHub → Settings → Applications → Railway → Configure 的授权，或服务 Settings → Source 的 Auto Deploy 开关；应急可在面板手动 Deploy
+- 面板/API 的两种"重新部署"有区别：**Redeploy（`serviceInstanceRedeploy`）= 原镜像重跑**，不拉新代码，只适合让环境变量等运行时配置生效；改了代码必须用 **`serviceInstanceDeploy(latestCommit: true)`** 重新构建
+- 迁移地区要改服务的 **multiRegionConfig**（如 `{"sin": {"numReplicas": 1}}`，面板 Scale → Region 等价于改它）；只改 `region` 字段会被 multiRegionConfig 覆盖，改了等于没改
 - 每次重部署后隧道域名会变：SSH 执行 `cat /root/.tunnel_domain`，或看 Railway 部署日志中 `[tunnel]` 行（UUID 不变，只改 Clash 的 server 字段）
 
 ## 八、构建细节
