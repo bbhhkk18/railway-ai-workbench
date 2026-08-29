@@ -122,10 +122,12 @@ query { project(id: "...") { services { edges { node {
 **2.7 取隧道域名**（用 2.6 拿到的 deploymentId）
 
 ```graphql
-query { deploymentLogs(deploymentId: "...", limit: 200) { ... } }
+query { deploymentLogs(deploymentId: "...", limit: 200) { message timestamp } }
 ```
 
 在日志中找 `[tunnel] https://xxxx.trycloudflare.com` 行，即代理隧道域名。
+
+> ⚠️ 每次重部署都会生成新域名：多次重部署后日志里会同时有多条 `[tunnel]` 行（旧容器产生的已失效），只有当前容器那条有效。拿不准就逐个 `curl -s -o /dev/null -w "%{http_code}" https://<域名>/` 验证——活隧道打到 xray 返回 400，死隧道返回 Cloudflare 530。`deploymentLogs` 对"原镜像重跑"的部署可能为空，此时改用 `environmentLogs(environmentId: "...") { message timestamp }`（运行时日志聚合了各次容器启动），或 SSH `cat /root/.tunnel_domain`。
 
 **2.8 验证**
 
@@ -155,7 +157,7 @@ curl -s -o /dev/null -w "%{http_code}" -u "admin:<WEB_PASSWORD>" https://<域名
 | 401 验证失败 | htpasswd 渲染失败，查部署日志 entrypoint 输出 |
 | 用户改了仓库代码 | 无需重新 fork，Railway 构建部署源的 main 分支 |
 | push 后没有自动构建 | webhook 未送达 → 检查 GitHub App 授权与服务 Auto Deploy 开关；手动触发 `serviceInstanceDeploy(latestCommit: true)`（注意 `serviceInstanceRedeploy` 不拉新代码） |
-| 迁移 region 不生效 | 要改 `multiRegionConfig`（如 `{sin: {numReplicas: 1}}`），只改 `region` 字段会被覆盖 |
+| 迁移 region 不生效 | 改 `multiRegionConfig`：键含连字符，必须用 **JSON 类型变量**传参（variables 传 `mrc: {"asia-southeast1-eqsg3a": {"numReplicas": 1}}`，新加坡；`asia-southeast1` 为同城弃用别名，旧短代码 `sin` 已失效），只改 `region` 字段会被覆盖 |
 
 ## 安全守则
 
